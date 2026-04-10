@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TBTI - 网球人格测试</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --green: #1a7a3a;
+  --green-light: #2d9b50;
+  --green-dark: #0f5a28;
+  --blue: #1b4f72;
+  --yellow: #c8e600;
+  --yellow-bright: #e6ff00;
+  --bg: #0a1a0f;
+  --card-bg: #112118;
+  --text: #e8f0e8;
+  --text-dim: #8fa898;
+  --accent: #4ade80;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ===== 开始页 ===== */
+.page { display: none; min-height: 100vh; }
+.page.active { display: flex; flex-direction: column; align-items: center; }
+
+#startPage {
+  justify-content: center;
+  text-align: center;
+  padding: 2rem;
+  background: radial-gradient(ellipse at 50% 30%, rgba(26,122,58,0.3) 0%, var(--bg) 70%);
+}
+
+.logo-ball {
+  width: 120px; height: 120px;
+  background: radial-gradient(circle at 35% 35%, var(--yellow-bright), #9ab800);
+  border-radius: 50%;
+  margin: 0 auto 1.5rem;
+  position: relative;
+  box-shadow: 0 0 60px rgba(200,230,0,0.3);
+  animation: float 3s ease-in-out infinite;
+}
+.logo-ball::after {
+  content: '';
+  position: absolute;
+  top: 15%; left: 10%; right: 10%; bottom: 15%;
+  border: 3px solid rgba(255,255,255,0.4);
+  border-radius: 50%;
+  clip-path: path('M 0 45 Q 25 20 50 45 Q 75 70 100 45');
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+h1 {
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: 0.15em;
+  margin-bottom: 0.3rem;
+  background: linear-gradient(135deg, var(--yellow-bright), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: var(--text-dim);
+  margin-bottom: 2.5rem;
+}
+
+.start-btn {
+  display: inline-block;
+  padding: 1rem 3rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--bg);
+  background: linear-gradient(135deg, var(--yellow), var(--accent));
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  transition: all 0.3s;
+  letter-spacing: 0.05em;
+}
+.start-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 30px rgba(74,222,128,0.4);
+}
+
+.start-info {
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  color: var(--text-dim);
+}
+
+/* ===== 测试页 ===== */
+#quizPage {
+  padding: 1rem;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.progress-bar-container {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 3px;
+  margin: 1rem 0 0.5rem;
+  overflow: hidden;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--green), var(--accent));
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+.progress-text {
+  text-align: center;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  margin-bottom: 1.5rem;
+}
+
+.question-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(74,222,128,0.15);
+  border-radius: 16px;
+  padding: 2rem 1.5rem;
+  margin-bottom: 1rem;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.q-number {
+  font-size: 0.8rem;
+  color: var(--accent);
+  font-weight: 600;
+  margin-bottom: 0.8rem;
+  letter-spacing: 0.1em;
+}
+.q-text {
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.option-btn {
+  display: block;
+  width: 100%;
+  padding: 1rem 1.2rem;
+  margin-bottom: 0.8rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  color: var(--text);
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(74,222,128,0.2);
+  border-radius: 12px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.25s;
+}
+.option-btn:hover {
+  background: rgba(74,222,128,0.1);
+  border-color: var(--accent);
+  transform: translateX(4px);
+}
+.option-btn.selected {
+  background: rgba(74,222,128,0.15);
+  border-color: var(--accent);
+  color: var(--accent);
+  font-weight: 600;
+}
+
+/* ===== 结果页 ===== */
+#resultPage {
+  padding: 1.5rem;
+  max-width: 600px;
+  width: 100%;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.result-header {
+  margin: 2rem 0 1rem;
+}
+.result-prefix {
+  font-size: 1rem;
+  color: var(--accent);
+  letter-spacing: 0.15em;
+  font-weight: 600;
+}
+.result-name {
+  font-size: 2.2rem;
+  font-weight: 900;
+  margin: 0.3rem 0;
+  background: linear-gradient(135deg, var(--yellow-bright), var(--accent));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.result-code {
+  font-size: 0.9rem;
+  color: var(--text-dim);
+  letter-spacing: 0.2em;
+  margin-bottom: 0.5rem;
+}
+.result-player {
+  font-size: 0.95rem;
+  color: var(--accent);
+  margin-bottom: 1.5rem;
+}
+
+.result-emoji {
+  font-size: 5rem;
+  margin: 1rem 0;
+  filter: drop-shadow(0 0 20px rgba(74,222,128,0.3));
+}
+
+.result-card {
+  background: var(--card-bg);
+  border: 1px solid rgba(74,222,128,0.15);
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  text-align: left;
+}
+.result-card h3 {
+  font-size: 1rem;
+  color: var(--accent);
+  margin-bottom: 0.8rem;
+  letter-spacing: 0.05em;
+}
+.result-card p, .result-card li {
+  font-size: 0.95rem;
+  line-height: 1.7;
+  color: var(--text);
+}
+.result-card ul {
+  list-style: none;
+  padding: 0;
+}
+.result-card ul li::before {
+  content: '• ';
+  color: var(--accent);
+}
+
+.dimension-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.dim-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+}
+.dim-label {
+  width: 55px;
+  text-align: right;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+.dim-bar-bg {
+  flex: 1;
+  height: 8px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.dim-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+.dim-bar-fill.left {
+  background: linear-gradient(90deg, var(--accent), transparent);
+  float: right;
+}
+.dim-bar-fill.right {
+  background: linear-gradient(90deg, transparent, var(--yellow));
+}
+.dim-label-right {
+  width: 55px;
+  text-align: left;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+.dim-active {
+  color: var(--accent) !important;
+  font-weight: 700;
+}
+
+.restart-btn {
+  display: inline-block;
+  padding: 0.8rem 2.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: transparent;
+  border: 2px solid var(--accent);
+  border-radius: 50px;
+  cursor: pointer;
+  margin-top: 1.5rem;
+  transition: all 0.3s;
+}
+.restart-btn:hover {
+  background: rgba(74,222,128,0.1);
+}
+
+.share-hint {
+  margin-top: 1rem;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+/* ===== 响应式 ===== */
+@media (max-width: 480px) {
+  h1 { font-size: 2.2rem; }
+  .q-text { font-size: 1.05rem; }
+  .result-name { font-size: 1.8rem; }
+  .question-card { padding: 1.5rem 1.2rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- ===== 开始页 ===== -->
+<div id="startPage" class="page active">
+  <div class="logo-ball"></div>
+  <h1>TBTI</h1>
+  <div class="subtitle">Tennis Ball Type Indicator · 网球人格测试</div>
+  <button class="start-btn" onclick="startQuiz()">开始测试</button>
+  <div class="start-info">25道题 · 约3分钟 · 发现你的网球人格</div>
+</div>
+
+<!-- ===== 测试页 ===== -->
+<div id="quizPage" class="page">
+  <div class="progress-bar-container">
+    <div class="progress-bar" id="progressBar"></div>
+  </div>
+  <div class="progress-text" id="progressText"></div>
+  <div id="questionContainer"></div>
+</div>
+
+<!-- ===== 结果页 ===== -->
+<div id="resultPage" class="page">
+  <div id="resultContent"></div>
+</div>
+
+<script>
+// ===== 题目数据 =====
+const questions = [
+  // 维度1: A vs D（进攻 vs 防守）
+  { text: "对手回了一个不太深的球到你正手位，第一反应？", dim: 0,
+    a: "机会来了！抽一拍制胜分", b: "稳稳打回去，等更好的机会" },
+  { text: "你更欣赏哪种比赛片段？", dim: 0,
+    a: "一记正手穿越，直接得分", b: "一次不可思议的救球，起死回生" },
+  { text: "比赛落后了，你的策略？", dim: 0,
+    a: "加大火力，搏一把", b: "稳住阵脚，等对手先崩" },
+  { text: "你觉得网球最爽的瞬间是？", dim: 0,
+    a: "ACE球或穿越球直接得分", b: "对手以为赢了但被你神奇救回" },
+  { text: "更认同哪句话？", dim: 0,
+    a: "「进攻就是最好的防守」", b: "「先立于不败之地」" },
+
+  // 维度2: P vs F（暴力 vs 细腻）
+  { text: "教练更可能对你说什么？", dim: 1,
+    a: "「力量很足啊！」", b: "「手感不错，控制很好」" },
+  { text: "瞬间获得一项网球超能力，你选？", dim: 1,
+    a: "发球时速200公里", b: "落点精确到10厘米" },
+  { text: "你更容易出现的问题？", dim: 1,
+    a: "球打飞了/出界了", b: "球没什么威胁，被对手轻松回" },
+  { text: "挑选球拍更看重什么？", dim: 1,
+    a: "重量和力量感，要能「砸」", b: "手感和控制，要能「雕」出角度" },
+  { text: "你最想学会的高级技术？", dim: 1,
+    a: "暴力上旋正手 / 大力发球", b: "切削 / 放短球 / 网前小球" },
+
+  // 维度3: S vs R（速决 vs 相持）
+  { text: "你理想的得分方式？", dim: 2,
+    a: "发球直接ace，或接发就抢攻得分", b: "来回拉锯十几拍后赢下关键分" },
+  { text: "你觉得哪种比赛更好看？", dim: 2,
+    a: "大炮对轰，几拍就分出胜负", b: "底线拉锯三十拍的经典回合" },
+  { text: "练球时你更有耐心做什么？", dim: 2,
+    a: "反复练发球、接发抢攻", b: "对拉底线球，看谁先失误" },
+  { text: "一场比赛你更怕遇到？", dim: 2,
+    a: "每分都跟你磨半天的对手", b: "发球特别好三拍就结束的对手" },
+  { text: "发球在比赛中有多重要？", dim: 2,
+    a: "最重要！好发球赢一半", b: "重要但不是全部，底线实力才是根本" },
+
+  // 维度4: H vs C（火热 vs 冷静）
+  { text: "打出制胜分后你会？", dim: 3,
+    a: "握拳怒吼 / 挥拍庆祝", b: "面不改色，准备下一分" },
+  { text: "打了一个低级失误，你的反应？", dim: 3,
+    a: "拍大腿 / 嘟囔 / 甚至想摔拍", b: "深呼吸，告诉自己忘掉这分" },
+  { text: "抢七局时你的心态？", dim: 3,
+    a: "肾上腺素飙升，越紧张越兴奋", b: "努力保持平静，跟平时一样打" },
+  { text: "你在场上跟搭档/对手互动多吗？", dim: 3,
+    a: "经常说话、鼓掌、击掌，表情丰富", b: "比较安静，专注比赛" },
+  { text: "情绪在场上是？", dim: 3,
+    a: "燃料——越激动状态越好", b: "干扰——越平静发挥越稳定" },
+
+  // 维度5: W vs E（求胜 vs 享受）
+  { text: "打完球后你复盘的是？", dim: 4,
+    a: "哪些分不该丢、战术能改进什么", b: "今天哪几拍打得特别舒服" },
+  { text: "对手水平比你低很多，你会？", dim: 4,
+    a: "还是认真打，练习战术执行", b: "放松下来，试试花式击球" },
+  { text: "约朋友打球更喜欢？", dim: 4,
+    a: "正式比赛，计分制", b: "随便拉球，练练手感" },
+  { text: "输了一场球后你的状态？", dim: 4,
+    a: "有点郁闷，想找出输球原因", b: "无所谓，打球本来就是为了开心" },
+  { text: "你理想中的网球水平是？", dim: 4,
+    a: "能在业余比赛中拿名次", b: "动作流畅好看，持续享受运动" },
+];
+
+// ===== 维度定义 =====
+// dim 0: A(进攻) vs D(防守) — a=A, b=D
+// dim 1: P(暴力) vs F(细腻) — a=P, b=F
+// dim 2: S(速决) vs R(相持) — a=S, b=R
+// dim 3: H(火热) vs C(冷静) — a=H, b=C
+// dim 4: W(求胜) vs E(享受) — a=W, b=E
+
+const dimLabels = [
+  ['进攻', '防守'],
+  ['暴力', '细腻'],
+  ['速决', '相持'],
+  ['火热', '冷静'],
+  ['求胜', '享受'],
+];
+
+const dimLetters = [
+  ['A', 'D'],
+  ['P', 'F'],
+  ['S', 'R'],
+  ['H', 'C'],
+  ['W', 'E'],
+];
+
+// ===== 前缀定义（P/F + S/R）=====
+const prefixes = {
+  'PS': { name: '闪电炮台', emoji: '⚡', desc: '你的武器是压倒性的力量和速度。发球是你最致命的武器，正手一拍能直接打穿对手防线。你追求效率，不想浪费时间在底线拉锯——最好三拍之内解决战斗。' },
+  'PR': { name: '人肉城墙', emoji: '🏰', desc: '你有着强壮的体魄和不知疲倦的跑动能力。每一拍都厚实有力，而且你有无穷的耐心去跟对手周旋。来吧，尽管打，我全都接得住，而且每一板都带着重量。' },
+  'FS': { name: '精准狙击', emoji: '🎯', desc: '你是球场上的手术刀。不需要蛮力，你靠的是精准到可怕的落点和时机。发接发环节你最擅长找角度、变节奏，往往在对手还没反应过来时就已经得分。' },
+  'FR': { name: '太极磨王', emoji: '🌀', desc: '你打球靠的是手感和智慧。旋转、角度、节奏变化是你的三大法宝。你愿意跟对手周旋一百拍，因为你知道，最后崩溃的一定不是你。' },
+};
+
+// ===== 核心人格定义（A/D + H/C + W/E）=====
+const cores = {
+  'AHW': { name: '斗牛士', player: '纳达尔', emoji: '🐂',
+    desc: '你是球场上的战士。每一分都全力以赴，每一拍都带着不服输的斗志。你的热血能感染全场，而你的进攻欲望让对手时刻处于高压之下。对你来说，网球是一场必须赢的战争。',
+    strengths: ['强大的进攻欲望和执行力', '关键分越打越好', '气势能压制对手'],
+    weaknesses: ['容易因为太激动而失误', '对自己要求过高，输球会很沮丧'],
+    advice: '适当放松，记住：你的斗志是天赋，但也需要节奏调控。' },
+  'AHE': { name: '表演王', player: '克耶高斯', emoji: '🎪',
+    desc: '网球场就是你的舞台！你打球不只是为了赢，更是为了好看和好玩。你敢于尝试各种花式击球，能在全场的欢呼中越打越好。比起比分，你更在乎有没有打出让人起立鼓掌的一球。',
+    strengths: ['创造力爆棚，击球选择出人意料', '享受比赛，压力下反而更放松', '是球场上最有趣的人'],
+    weaknesses: ['注意力不稳定，有时候浪得飞起', '偶尔忘了在打比赛'],
+    advice: '你的天赋是让网球变得快乐。在关键分稍微收一收，其余随便浪。' },
+  'ACW': { name: '刺客', player: '萨芬', emoji: '🗡️',
+    desc: '你是冷血的进攻机器。不怒吼、不庆祝，面无表情地一拍一拍把对手的防线撕碎。你的冷静让进攻更加致命——当对手还在猜你的情绪时，球已经落在底线死角了。',
+    strengths: ['进攻时极其冷静高效', '心理素质强，不受外界干扰', '战术执行力一流'],
+    weaknesses: ['有时候冷静过头，缺少一点火花', '给人距离感，双打沟通可能偏少'],
+    advice: '你的冷静是稀缺天赋，但偶尔给搭档一个击掌会让配合更好。' },
+  'ACE': { name: '散步者', player: '', emoji: '🚶',
+    desc: '你打球的样子就像在公园散步一样轻松。有进攻能力但不急于展示，有技术但不刻意表现。你享受的是挥拍击球的那个瞬间本身，而不是记分牌上的数字。',
+    strengths: ['极度放松，发挥稳定', '打球不焦虑，永远是最自在的那个', '有时候反而打出神来之笔'],
+    weaknesses: ['缺乏紧迫感，关键分可能掉链子', '有时让搭档觉得你不够投入'],
+    advice: '你的轻松感很难得，如果能在关键分多投入一点点，你会强得可怕。' },
+  'DHW': { name: '战神', player: '穆雷', emoji: '⚔️',
+    desc: '你是最不想输球的那个人。你的防守不是消极等待，而是充满斗志的每球必争。你愿意满场飞奔去救每一个球，然后用热血和毅力把对手活活拖死。永不放弃是你的信仰。',
+    strengths: ['坚韧不拔，永不放弃', '防守反击能力极强', '气势上永远不会输'],
+    weaknesses: ['太想赢有时候反而给自己太多压力', '容易在长盘消耗中情绪波动'],
+    advice: '你的战斗意志是最强武器。记得比赛间隙深呼吸，给自己充电。' },
+  'DHE': { name: '橡皮糖', player: '', emoji: '🤸',
+    desc: '你满场飞奔、什么球都去接，而且接得不亦乐乎！你享受的不是赢球，而是那个极限救球、全场欢呼的瞬间。你是球场上最有活力的人，虽然不太在乎比分，但你的快乐真的会传染。',
+    strengths: ['跑动能力惊人', '享受过程，压力为零', '是大家最想一起打球的人'],
+    weaknesses: ['得分能力偏弱，容易陷入被动', '太快乐了有时候忘了得分'],
+    advice: '你让网球回到了它最本质的样子——快乐。保持就好，偶尔反击一下更完美。' },
+  'DCW': { name: '机器人', player: '德约科维奇', emoji: '🤖',
+    desc: '零失误、零情绪、零波动。你就像一台精密的网球机器，永远在做最正确的选择。你不需要华丽的制胜分，因为你知道只要自己不犯错，对手迟早会崩溃。耐心和纪律是你的终极武器。',
+    strengths: ['失误率极低，发挥极其稳定', '心理素质顶级，永远冷静', '长盘作战能力无敌'],
+    weaknesses: ['打法可能不太好看，缺乏观赏性', '过于依赖对手犯错，主动得分偏少'],
+    advice: '稳定是你的超能力。但偶尔一拍意想不到的进攻会让对手彻底崩溃。' },
+  'DCE': { name: '禅师', player: '', emoji: '🧘',
+    desc: '你是球场上最佛系的存在。不急不躁不在乎，每一拍都平心静气。你打球不是为了赢，不是为了炫技，而是一种修行。当别人在焦虑比分的时候，你在享受风吹过球场的感觉。',
+    strengths: ['心态永远不会崩', '打球极其放松，手感反而好', '是球场上的定海神针'],
+    weaknesses: ['缺乏竞争欲望，容易被翻盘', '有时候佛系得让搭档着急'],
+    advice: '你已经悟了。如果能在关键分稍微入世一下，你就是无敌的。' },
+};
+
+// ===== 状态 =====
+let currentQ = 0;
+let scores = [0, 0, 0, 0, 0]; // 每维度：a选项得分（越高越倾向第一极）
+let shuffledQuestions = [];
+let answerMap = []; // 记录每题是否已答
+
+function shuffleArray(arr) {
+  const result = arr.map((item, idx) => ({ ...item, origIdx: idx }));
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+function startQuiz() {
+  currentQ = 0;
+  scores = [0, 0, 0, 0, 0];
+  // 打乱题目顺序
+  shuffledQuestions = shuffleArray(questions);
+  answerMap = new Array(25).fill(null);
+
+  document.getElementById('startPage').classList.remove('active');
+  document.getElementById('quizPage').classList.add('active');
+  showQuestion();
+}
+
+function showQuestion() {
+  const q = shuffledQuestions[currentQ];
+  const container = document.getElementById('questionContainer');
+  const progress = ((currentQ) / 25) * 100;
+
+  document.getElementById('progressBar').style.width = progress + '%';
+  document.getElementById('progressText').textContent = `${currentQ + 1} / 25`;
+
+  container.innerHTML = `
+    <div class="question-card">
+      <div class="q-number">Q${currentQ + 1}</div>
+      <div class="q-text">${q.text}</div>
+      <button class="option-btn" onclick="selectOption('a')">A. ${q.a}</button>
+      <button class="option-btn" onclick="selectOption('b')">B. ${q.b}</button>
+    </div>
+  `;
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function selectOption(choice) {
+  const q = shuffledQuestions[currentQ];
+  const dim = q.dim;
+
+  if (choice === 'a') {
+    scores[dim]++;
+  }
+  // b选项不加分，最终用 5-score 算另一极
+
+  // 高亮选中
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.classList.remove('selected'));
+  btns[choice === 'a' ? 0 : 1].classList.add('selected');
+
+  // 延迟进入下一题
+  setTimeout(() => {
+    currentQ++;
+    if (currentQ >= 25) {
+      showResult();
+    } else {
+      showQuestion();
+    }
+  }, 300);
+}
+
+function getResult() {
+  const letters = [];
+  for (let i = 0; i < 5; i++) {
+    // scores[i] = 该维度选a的次数（0-5）
+    // >=3 → 第一极字母，<3 → 第二极字母
+    letters.push(scores[i] >= 3 ? dimLetters[i][0] : dimLetters[i][1]);
+  }
+  // letters = [A/D, P/F, S/R, H/C, W/E]
+  const prefixKey = letters[1] + letters[2]; // P/F + S/R
+  const coreKey = letters[0] + letters[3] + letters[4]; // A/D + H/C + W/E
+
+  return {
+    letters,
+    prefixKey,
+    coreKey,
+    prefix: prefixes[prefixKey],
+    core: cores[coreKey],
+    code: prefixKey + '-' + coreKey,
+    fullName: prefixes[prefixKey].name + '·' + cores[coreKey].name,
+  };
+}
+
+function showResult() {
+  document.getElementById('quizPage').classList.remove('active');
+  document.getElementById('resultPage').classList.add('active');
+
+  const result = getResult();
+  const { prefix, core, code, fullName, letters } = result;
+  const mainEmoji = core.emoji;
+
+  let playerHtml = '';
+  if (core.player) {
+    playerHtml = `<div class="result-player">精神图腾：${core.player}</div>`;
+  }
+
+  // 维度条
+  let dimBarsHtml = '';
+  for (let i = 0; i < 5; i++) {
+    const aScore = scores[i];
+    const bScore = 5 - scores[i];
+    const aPercent = (aScore / 5) * 100;
+    const bPercent = (bScore / 5) * 100;
+    const aActive = aScore >= 3 ? 'dim-active' : '';
+    const bActive = bScore >= 3 ? 'dim-active' : '';
+
+    dimBarsHtml += `
+      <div class="dim-row">
+        <span class="dim-label ${aActive}">${dimLabels[i][0]}</span>
+        <div class="dim-bar-bg">
+          <div style="display:flex;height:100%;">
+            <div style="flex:${aScore};background:linear-gradient(90deg, var(--accent), rgba(74,222,128,0.2));border-radius:4px 0 0 4px;"></div>
+            <div style="flex:${bScore};background:linear-gradient(90deg, rgba(200,230,0,0.2), var(--yellow));border-radius:0 4px 4px 0;"></div>
+          </div>
+        </div>
+        <span class="dim-label-right ${bActive}">${dimLabels[i][1]}</span>
+      </div>
+    `;
+  }
+
+  document.getElementById('resultContent').innerHTML = `
+    <div class="result-header">
+      <div class="result-prefix">你的网球人格是</div>
+      <div class="result-emoji">${prefix.emoji}${mainEmoji}</div>
+      <div class="result-name">${fullName}</div>
+      <div class="result-code">${code}</div>
+      ${playerHtml}
+    </div>
+
+    <div class="result-card">
+      <h3>你是谁</h3>
+      <p>${prefix.desc}</p>
+      <p style="margin-top:0.8rem;">${core.desc}</p>
+    </div>
+
+    <div class="result-card">
+      <h3>维度分析</h3>
+      <div class="dimension-bars">
+        ${dimBarsHtml}
+      </div>
+    </div>
+
+    <div class="result-card">
+      <h3>你的优势</h3>
+      <ul>${core.strengths.map(s => `<li>${s}</li>`).join('')}</ul>
+    </div>
+
+    <div class="result-card">
+      <h3>你的弱点</h3>
+      <ul>${core.weaknesses.map(s => `<li>${s}</li>`).join('')}</ul>
+    </div>
+
+    <div class="result-card">
+      <h3>给你的建议</h3>
+      <p>${core.advice}</p>
+    </div>
+
+    <button class="restart-btn" onclick="restart()">重新测试</button>
+    <div class="share-hint">截图分享给球友，看看他们是什么类型 🎾</div>
+  `;
+
+  document.getElementById('progressBar').style.width = '100%';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function restart() {
+  document.getElementById('resultPage').classList.remove('active');
+  document.getElementById('startPage').classList.add('active');
+}
+</script>
+</body>
+</html>
