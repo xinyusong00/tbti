@@ -335,6 +335,20 @@ h1 {
   color: var(--text-dim);
 }
 
+.back-btn {
+  background: none;
+  border: none;
+  color: var(--text-dim);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 0.3rem 0;
+  margin-bottom: 0.5rem;
+  transition: color 0.2s;
+}
+.back-btn:hover {
+  color: var(--accent);
+}
+
 /* ===== 响应式 ===== */
 @media (max-width: 480px) {
   h1 { font-size: 2.2rem; }
@@ -543,7 +557,12 @@ function showQuestion() {
   document.getElementById('progressBar').style.width = progress + '%';
   document.getElementById('progressText').textContent = `${currentQ + 1} / 25`;
 
+  const backBtn = currentQ > 0
+    ? `<button class="back-btn" onclick="goBack()">< 上一题</button>`
+    : '';
+
   container.innerHTML = `
+    ${backBtn}
     <div class="question-card">
       <div class="q-number">Q${currentQ + 1}</div>
       <div class="q-text">${q.text}</div>
@@ -555,9 +574,24 @@ function showQuestion() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
+function goBack() {
+  if (currentQ <= 0) return;
+  currentQ--;
+  // 撤销上一题的得分
+  const prevChoice = answerMap[currentQ];
+  if (prevChoice === 'a') {
+    scores[shuffledQuestions[currentQ].dim]--;
+  }
+  answerMap[currentQ] = null;
+  showQuestion();
+}
+
 function selectOption(choice) {
   const q = shuffledQuestions[currentQ];
   const dim = q.dim;
+
+  // 记录选择
+  answerMap[currentQ] = choice;
 
   if (choice === 'a') {
     scores[dim]++;
